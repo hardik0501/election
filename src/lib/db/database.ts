@@ -23,8 +23,18 @@ import {
 import { expandSearchQuery, transliterateHindiToEnglish } from '../nlp/transliteration';
 import { normalizeEnglish, normalizeEpic, normalizeHindi, normalizeHouseNumber } from '../nlp/normalization';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const DB_STORE_FILE = path.join(DATA_DIR, 'voter_store.json');
+import os from 'os';
+
+function getStoreFilePath(): string {
+  if (process.env.DATA_STORE_FILE) return process.env.DATA_STORE_FILE;
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    return path.join(os.tmpdir(), 'voter_data', 'voter_store.json');
+  }
+  return path.join(process.cwd(), 'data', 'voter_store.json');
+}
+
+const DB_STORE_FILE = getStoreFilePath();
+const DATA_DIR = path.dirname(DB_STORE_FILE);
 
 interface DatabaseStore {
   roles: Role[];
@@ -78,8 +88,95 @@ export class DatabaseRepository {
   }
 
   private ensureDataDir() {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+    } catch {
+      // Fallback to /tmp if root directory is read-only
+      const fallbackDir = path.join(os.tmpdir(), 'voter_data');
+      if (!fs.existsSync(fallbackDir)) {
+        fs.mkdirSync(fallbackDir, { recursive: true });
+      }
+    }
+  }
+
+  private seedSampleDataIfEmpty() {
+    if (this.memoryStore.voters.length > 0) return;
+    try {
+      const sampleCsvPath = path.join(process.cwd(), 'data', 'sample_bihar_electoral_roll.csv');
+      if (fs.existsSync(sampleCsvPath)) {
+        const rawCsv = fs.readFileSync(sampleCsvPath, 'utf-8');
+        const lines = rawCsv.split('\n').map((l) => l.trim()).filter(Boolean);
+        if (lines.length > 1) {
+          const headers = lines[0].split(',').map((h) => h.trim());
+          const batchId = crypto.randomUUID();
+          const sourceFileId = crypto.randomUUID();
+
+          this.memoryStore.batches.push({
+            id: batchId,
+            batch_name: '182-Patna Sahib Ward 14 Sample Electoral Roll',
+            status: 'COMPLETED',
+            total_files: 1,
+            total_records_processed: lines.length - 1,
+            total_records_valid: lines.length - 1,
+            total_records_flagged: 0,
+            metadata: { state: 'BIHAR', district: 'Patna' },
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            completed_at: new Date().toISOString(),
+          });
+
+          this.memoryStore.source_files.push({
+            id: sourceFileId,
+            batch_id: batchId,
+            original_filename: 'sample_bihar_electoral_roll.csv',
+            storage_path: sampleCsvPath,
+            file_type: 'CSV',
+            file_hash_sha256: 'seed-hash',
+            file_size_bytes: rawCsv.length,
+            total_pages: 1,
+            parsing_status: 'COMPLETED',
+            parsing_metrics: { records_extracted: lines.length - 1 },
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+
+          for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split(',').map((c) => c.trim());
+            const row: Record<string, string> = {};
+            headers.forEach((h, idx) => { row[h] = cols[idx] || ''; });
+
+            const voter = this.mapToVoter({
+              id: crypto.randomUUID(),
+              serial_number: parseInt(row.serial_number, 10) || i,
+              epic_number: row.epic_number || null,
+              name_hi: row.voter_name || '',
+              relation_type: row.relation_type || 'UNKNOWN',
+              relation_name_hi: row.relation_name || null,
+              gender: row.gender || 'UNKNOWN',
+              age: parseInt(row.age, 10) || null,
+              house_number: row.house_number || null,
+              ward_number: row.ward_number || null,
+              part_number: row.part_number || null,
+              area: row.section_name || null,
+              assembly_constituency: row.assembly_constituency || '182-Patna Sahib',
+              district: row.district || 'Patna',
+              state: row.state || 'BIHAR',
+              source_file_id: sourceFileId,
+              source_page_number: 1,
+              source_serial_number: parseInt(row.serial_number, 10) || i,
+              photo_available: true,
+              extraction_confidence: 1.0,
+              validation_status: 'VALID',
+            });
+
+            this.memoryStore.voters.push(voter);
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error seeding sample data:', e);
     }
   }
 
@@ -88,25 +185,27 @@ export class DatabaseRepository {
     try {
       this.ensureDataDir();
       if (fs.existsSync(DB_STORE_FILE)) {
-        const raw = fs.readFileSync(DB_STORE_FILE, 'utf-8');
-        const parsed = JSON.parse(raw);
-        this.memoryStore = {
-          roles: parsed.roles || [],
-          users: parsed.users || [],
-          elections: parsed.elections || [],
-          constituencies: parsed.constituencies || [],
-          wards: parsed.wards || [],
-          parts: parsed.parts || [],
-          areas: parsed.areas || [],
-          batches: parsed.batches || [],
-          source_files: parsed.source_files || [],
-          voters: (parsed.voters || []).map((v: any) => this.mapToVoter(v)),
-          voter_relations: parsed.voter_relations || [],
-          extraction_results: parsed.extraction_results || [],
-          validation_errors: parsed.validation_errors || [],
-          audit_logs: parsed.audit_logs || [],
-          search_logs: parsed.search_logs || [],
-        };
+        const raw = fs.readFileSync(DB_STORE_FILE, 'utf-8').trim();
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          this.memoryStore = {
+            roles: parsed.roles || [],
+            users: parsed.users || [],
+            elections: parsed.elections || [],
+            constituencies: parsed.constituencies || [],
+            wards: parsed.wards || [],
+            parts: parsed.parts || [],
+            areas: parsed.areas || [],
+            batches: parsed.batches || [],
+            source_files: parsed.source_files || [],
+            voters: (parsed.voters || []).map((v: any) => this.mapToVoter(v)),
+            voter_relations: parsed.voter_relations || [],
+            extraction_results: parsed.extraction_results || [],
+            validation_errors: parsed.validation_errors || [],
+            audit_logs: parsed.audit_logs || [],
+            search_logs: parsed.search_logs || [],
+          };
+        }
       } else {
         this.memoryStore = {
           roles: [],
@@ -125,11 +224,14 @@ export class DatabaseRepository {
           audit_logs: [],
           search_logs: [],
         };
-        this.saveStore();
       }
+
+      this.seedSampleDataIfEmpty();
       this.isLoaded = true;
     } catch (e) {
       console.error('Error reading voter_store.json:', e);
+      this.seedSampleDataIfEmpty();
+      this.isLoaded = true;
     }
   }
 
@@ -138,7 +240,17 @@ export class DatabaseRepository {
       this.ensureDataDir();
       fs.writeFileSync(DB_STORE_FILE, JSON.stringify(this.memoryStore, null, 2), 'utf-8');
     } catch (e) {
-      console.error('Error saving voter_store.json:', e);
+      // If primary path fails, try /tmp fallback
+      try {
+        const fallback = path.join(os.tmpdir(), 'voter_data', 'voter_store.json');
+        const fallbackDir = path.dirname(fallback);
+        if (!fs.existsSync(fallbackDir)) {
+          fs.mkdirSync(fallbackDir, { recursive: true });
+        }
+        fs.writeFileSync(fallback, JSON.stringify(this.memoryStore, null, 2), 'utf-8');
+      } catch (err) {
+        console.error('Error saving voter_store.json:', err);
+      }
     }
   }
 

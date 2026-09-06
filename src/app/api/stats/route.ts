@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { dbRepository } from '@/lib/db/database';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const stats = await dbRepository.getStats();

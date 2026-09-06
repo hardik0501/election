@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { ValidationIssue } from '@/lib/validation/rules';
 import { DuplicateCluster } from '@/lib/validation/duplicate-detector';
 import {
@@ -45,7 +45,7 @@ export default function ValidationQueuePage() {
   const [resolvingId, setResolvingId] = useState<string | null>(null);
   const [actionSuccessMsg, setActionSuccessMsg] = useState<string | null>(null);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -67,11 +67,11 @@ export default function ValidationQueuePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter]);
 
   useEffect(() => {
     loadData();
-  }, [statusFilter]);
+  }, [loadData]);
 
   const handleResolve = async (
     issue: ValidationIssue,
