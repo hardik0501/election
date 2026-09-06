@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dbRepository } from '@/lib/db/database';
 import { SecurityAuditLogger } from '@/lib/security/audit';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }

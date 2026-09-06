@@ -3,6 +3,8 @@ import { AuthService, UserRoleName } from '@/lib/security/auth';
 import { RateLimiter } from '@/lib/security/rate-limiter';
 import { SecurityAuditLogger } from '@/lib/security/audit';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
