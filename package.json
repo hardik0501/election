@@ -1,0 +1,44 @@
+{
+  "name": "voter-finder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-Grade Election Voter Data Search Platform",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "migrate": "tsx scripts/run-migrations.ts",
+    "seed": "tsx scripts/seed.ts"
+  },
+  "dependencies": {
+    "@types/pg": "^8.23.1",
+    "clsx": "^2.1.1",
+    "csv-parse": "^5.6.0",
+    "lucide-react": "^0.475.0",
+    "next": "^14.2.23",
+    "pdf-parse": "^1.1.1",
+    "pg": "^8.23.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.6.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.17",
+    "@types/pdf-parse": "^1.1.4",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.23",
+    "postcss": "^8.5.2",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.23.13",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}

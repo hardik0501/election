@@ -1,0 +1,16 @@
+serial_number,epic_number,voter_name,relation_type,relation_name,gender,age,house_number,ward_number,part_number,section_name,polling_station_name,assembly_constituency,district,state
+1,BR011234567,रमेश कुमार,FATHER,सुरेश कुमार,MALE,38,12-A,Ward-14,Part-102,Section-1 Gandhi Nagar,Govt Primary School Patna,182-Patna Sahib,Patna,BIHAR
+2,BR011234568,सुनीता देवी,HUSBAND,रमेश कुमार,FEMALE,35,12-A,Ward-14,Part-102,Section-1 Gandhi Nagar,Govt Primary School Patna,182-Patna Sahib,Patna,BIHAR
+3,BR011234569,विकास कुमार,FATHER,रमेश कुमार,MALE,19,12-A,Ward-14,Part-102,Section-1 Gandhi Nagar,Govt Primary School Patna,182-Patna Sahib,Patna,BIHAR
+4,BR011234570,राजेश शर्मा,FATHER,महेश शर्मा,MALE,45,15,Ward-14,Part-102,Section-1 Gandhi Nagar,Govt Primary School Patna,182-Patna Sahib,Patna,BIHAR
+5,BR011234571,पूजा शर्मा,HUSBAND,राजेश शर्मा,FEMALE,42,15,Ward-14,Part-102,Section-1 Gandhi Nagar,Govt Primary School Patna,182-Patna Sahib,Patna,BIHAR
+6,BR011234572,अमित कुमार सिंह,FATHER,राजेन्द्र सिंह,MALE,29,22-B,Ward-14,Part-102,Section-2 Nehru Marg,Govt Primary School Patna,182-Patna Sahib,Patna,BIHAR
+7,BR011234573,अनिता सिंह,HUSBAND,अमित कुमार सिंह,FEMALE,27,22-B,Ward-14,Part-102,Section-2 Nehru Marg,Govt Primary School Patna,182-Patna Sahib,Patna,BIHAR
+8,BR011234574,विक्रम यादव,FATHER,राम प्रवेश यादव,MALE,52,34,Ward-14,Part-102,Section-2 Nehru Marg,Govt Primary School Patna,182-Patna Sahib,Patna,BIHAR
+9,BR011234575,सीमा देवी,HUSBAND,विक्रम यादव,FEMALE,48,34,Ward-14,Part-102,Section-2 Nehru Marg,Govt Primary School Patna,182-Patna Sahib,Patna,BIHAR
+10,BR011234576,राहुल यादव,FATHER,विक्रम यादव,MALE,24,34,Ward-14,Part-102,Section-2 Nehru Marg,Govt Primary School Patna,182-Patna Sahib,Patna,BIHAR
+11,BR011234577,दिनेश प्रसाद,FATHER,हरि प्रसाद,MALE,61,48,Ward-15,Part-103,Section-1 Ashok Rajpath,Community Hall Patna,182-Patna Sahib,Patna,BIHAR
+12,BR011234578,गीता देवी,HUSBAND,दिनेश प्रसाद,FEMALE,58,48,Ward-15,Part-103,Section-1 Ashok Rajpath,Community Hall Patna,182-Patna Sahib,Patna,BIHAR
+13,BR011234579,संजय चौधरी,FATHER,रामनारायण चौधरी,MALE,36,55-C,Ward-15,Part-103,Section-2 Kankarbagh,Community Hall Patna,182-Patna Sahib,Patna,BIHAR
+14,BR011234580,रेखा चौधरी,HUSBAND,संजय चौधरी,FEMALE,33,55-C,Ward-15,Part-103,Section-2 Kankarbagh,Community Hall Patna,182-Patna Sahib,Patna,BIHAR
+15,BR011234581,मुकेश वर्मा,FATHER,श्याम सुंदर वर्मा,MALE,41,60,Ward-15,Part-103,Section-2 Kankarbagh,Community Hall Patna,182-Patna Sahib,Patna,BIHAR
